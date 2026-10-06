@@ -3,88 +3,737 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FC Career Manager</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+    <title>FC MANAGER 27 — Mobile Career</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0e14;
+            --bg-card: #151921;
+            --bg-hover: #1e2430;
+            --accent-color: #00ff87;
+            --accent-blue: #00d4ff;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --danger: #ff4757;
+            --border-color: #262f40;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Sidebar & Navigation */
+        .sidebar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px;
+        }
+
+        .brand h2 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .brand span { color: var(--accent-color); }
+
+        .nav-menu {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .nav-btn {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .nav-btn.active {
+            border-color: var(--accent-color);
+            background: #00ff8715;
+            color: var(--accent-color);
+        }
+
+        .club-info-card {
+            background: var(--bg-hover);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .club-name { font-weight: 700; font-size: 1rem; }
+        .club-budget { color: var(--accent-color); font-size: 0.85rem; font-weight: 600; }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-header h1 { font-size: 1.3rem; font-weight: 700; }
+
+        .custom-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        /* Tactics Layout */
+        .tactics-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pitch-view {
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        #squadPitchCanvas {
+            background: #1a472a;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .squad-list-panel {
+background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .player-card-mini {
+            background: var(--bg-hover);
+            padding: 10px 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .ovr-pill {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 900;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Transfers Table */
+        .transfers-table-container {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .data-table th { background: var(--bg-hover); color: var(--text-muted); }
+
+        /* Match Arena */
+        .scoreboard-hero {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .team-block h2 { font-size: 1rem; }
+        .live-score { font-size: 2.2rem; font-weight: 900; color: var(--accent-color); }
+        .match-time { font-size: 0.8rem; color: var(--text-muted); }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--accent-color);
+            color: #000;
+            margin-bottom: 16px;
+        }
+
+        .match-analytics-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stats-panel, .events-log-panel {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .events-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .event-item {
+            background: var(--bg-hover);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Finance */
+        .cards-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .money-text { font-size: 1.4rem; font-weight: 900; margin-top: 6px; }
+        .money-text.positive { color: var(--accent-color); }
+        .money-text.negative { color: var(--danger); }
+
+        @media (min-width: 768px) {
+            .app-layout { flex-direction: row; }
+.sidebar { width: 280px; border-bottom: none; border-right: 1px solid var(--border-color); }
+            .nav-menu { flex-direction: column; }
+            .tactics-grid { display: grid; grid-template-columns: 650px 1fr; }
+            .match-analytics-grid { display: grid; grid-template-columns: 1fr 1fr; }
+            .cards-summary { display: grid; grid-template-columns: repeat(3, 1fr); }
+            .action-btn { width: auto; }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Верхняя панель -->
-        <header class="top-bar">
-            <div class="profile-info">
-                <span class="user-level">LVL 12</span>
-                <span id="user-name">АМИРХАН</span>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>FC MANAGER <span>27</span></h2>
             </div>
-            <div class="balance-badge">
-                <span class="coin-icon">⚡</span>
-                <span id="balance-val">15,000</span>
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="squad">📋 Состав и Тактика</button>
+                <button class="nav-btn" data-tab="transfers">💼 Трансферы</button>
+                <button class="nav-btn" data-tab="match">⚽ Центр Матча</button>
+                <button class="nav-btn" data-tab="finance">📊 Финансы</button>
+            </nav>
+            <div class="club-info-card">
+                <div>
+                    <div class="club-name" id="sidebarClubName">ФК Грифон</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);" id="sidebarSeason">Сезон 1</div>
+                </div>
+                <div class="club-budget" id="sidebarBudget">$50.0M</div>
             </div>
-        </header>
+        </aside>
 
-        <!-- FUT-карточка -->
-        <div class="card-wrapper">
-            <div class="fut-card gold-theme">
-                <div class="card-bg-overlay"></div>
-                
-                <div class="card-header">
-                    <div class="rating-group">
-                        <span class="ovr-num" id="player-ovr">88</span>
-                        <span class="pos-tag">ST</span>
+        <main class="content-area">
+            <!-- Тактика -->
+            <section id="squad" class="tab-content active">
+                <header class="section-header">
+                    <h1>Тактика</h1>
+                    <select id="tacticSelect" class="custom-select">
+                        <option value="4-3-3">4-3-3</option>
+                        <option value="4-4-2">4-4-2</option>
+                        <option value="3-5-2">3-5-2</option>
+                    </select>
+                </header>
+                <div class="tactics-grid">
+                    <div class="pitch-view">
+                        <canvas id="squadPitchCanvas" width="600" height="480"></canvas>
                     </div>
-                    <div class="club-and-flag">
-                        <span class="flag">🇷🇺 </span>
-                    </div>
-                </div>
-
-                <!-- Вырезанное реалистичное фото вместо детского SVG -->
-                <div class="player-photo-container">
-                    <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=60" alt="Player" class="player-photo">
-                </div>
-
-                <div class="card-footer">
-                    <h2 class="player-title" id="card-player-name">AMIRHAN</h2>
-                    <div class="club-name">СВОБОДНЫЙ АГЕНТ</div>
-                    <div class="divider"></div>
-
-                    <!-- Статы -->
-                    <div class="stats-matrix">
-                        <div class="stat-box"><span class="val">89</span><span class="lbl">PAC</span></div>
-                        <div class="stat-box"><span class="val">86</span><span class="lbl">SHO</span></div>
-                        <div class="stat-box"><span class="val">78</span><span class="lbl">PAS</span></div>
-                        <div class="stat-box"><span class="val">88</span><span class="lbl">DRI</span></div>
-                        <div class="stat-box"><span class="val">42</span><span class="lbl">DEF</span></div>
-                        <div class="stat-box"><span class="val">82</span><span class="lbl">PHY</span></div>
+                    <div class="squad-list-panel">
+                        <h3>Заявка на матч</h3>
+                        <div class="players-list" id="playersList"></div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- Экипировка -->
-        <section class="gear-section">
-            <div class="section-title">СНАРЯЖЕНИЕ</div>
-            <div class="gear-row">
-                <div class="gear-card active">
-                    <div class="gear-icon">👕 </div>
-                    <div class="gear-text">Форма Pro</div>
+            <!-- Трансферы -->
+            <section id="transfers" class="tab-content">
+                <header class="section-header">
+                    <h1>Рынок игроков</h1>
+                </header>
+                <div class="transfers-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Поз</th>
+                                <th>OVR</th>
+                                <th>POT</th>
+                                <th>Цена</th>
+                                <th>З/П</th>
+                                <th>Купить</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transferMarketTable"></tbody>
+                    </table>
                 </div>
-                <div class="gear-card">
-                    <div class="gear-icon">👟 </div>
-                    <div class="gear-text">Mercurial +3 PAC</div>
-                </div>
-                <div class="gear-card locked">
-                    <div class="gear-icon">🔒</div>
-                    <div class="gear-text">Капитанка</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Нижние кнопки -->
-        <footer class="bottom-actions">
-            <button class="action-btn train-btn" onclick="trainPlayer()">ТРЕНИРОВКА</button>
-            <button class="action-btn match-btn" onclick="playMatch()">ИГРАТЬ МАТЧ</button>
-        </footer>
+            <!-- Матч -->
+            <section id="match" class="tab-content">
+                <header class="section-header">
+                    <h1>Симуляция Live</h1>
+                </header>
+                <button id="btnStartSim" class="action-btn">Сыграть матч (90')</button>
+                <div class="match-arena">
+                    <div class="scoreboard-hero">
+                        <div class="team-block">
+                            <h2 id="matchHomeTeam">ФК Грифон</h2>
+                        </div>
+                        <div>
+                            <div class="live-score" id="liveScore">0 : 0</div>
+<div class="match-time" id="liveTime">00:00</div>
+                        </div>
+                        <div class="team-block">
+                            <h2 id="matchAwayTeam">Зенит</h2>
+                        </div>
+                    </div>
+                    <div class="match-analytics-grid">
+                        <div class="stats-panel">
+                            <h3>Статистика & xG</h3>
+                            <div class="stat-row">
+                                <span id="homeXG">0.00</span>
+                                <span>xG</span>
+                                <span id="awayXG">0.00</span>
+                            </div>
+                            <div class="stat-row">
+                                <span id="homeShots">0</span>
+                                <span>Удары</span>
+                                <span id="awayShots">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span id="homePoss">50%</span>
+                                <span>Владение</span>
+                                <span id="awayPoss">50%</span>
+                            </div>
+                        </div>
+                        <div class="events-log-panel">
+                            <h3>Лента событий</h3>
+                            <div class="events-list" id="matchEventsLog">
+                                <div class="event-item">Ожидание начала матча...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Финансы -->
+            <section id="finance" class="tab-content">
+                <header class="section-header">
+                    <h1>Финансы</h1>
+                </header>
+                <div class="cards-summary">
+                    <div class="summary-card">
+                        <h4>Баланс</h4>
+                        <p class="money-text positive" id="financeBalance">$50.0M</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Фонд зарплат</h4>
+                        <p class="money-text negative" id="financeWage">$240k/нед</p>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // === МАТЕМАТИКА И МОДЕЛИ ===
+        class Player {
+            constructor(id, name, age, position, baseOvr) {
+                this.id = id;
+                this.name = name;
+                this.age = age;
+                this.position = position;
+                this.potential = Math.min(99, baseOvr + Math.floor(Math.random() * 10) + 2);
+                this.stamina = 100;
+                this.form = 80 + Math.floor(Math.random() * 20);
+                this.ovr = baseOvr;
+                this.marketValue = Math.round(Math.pow(this.ovr, 4.2) * 0.12 * (age < 23 ? 1.3 : 0.8));
+                this.salary = Math.round((this.marketValue * 0.002) / 52) * 52;
+            }
+        }
+
+        class MatchEngine {
+            constructor(homeTeam, awayTeam) {
+                this.home = homeTeam;
+                this.away = awayTeam;
+                this.time = 0;
+                this.score = { home: 0, away: 0 };
+                this.events = [];
+                this.stats = {
+                    home: { shots: 0, shotsOnTarget: 0, xG: 0, possession: 50 },
+                    away: { shots: 0, shotsOnTarget: 0, xG: 0, possession: 50 }
+                };
+            }
+
+            calculateLinePower(team, line) {
+                const players = team.squad.filter(p => p.line === line);
+                if (players.length === 0) return 70;
+                return players.reduce((acc, p) => acc + (p.ovr * (p.stamina / 100)), 0) / players.length;
+            }
+
+            simulateTick() {
+                if (this.time >= 90) return false;
+                this.time++;
+const homeMid = this.calculateLinePower(this.home, 'MID');
+                const awayMid = this.calculateLinePower(this.away, 'MID');
+                const delta = (homeMid - awayMid) * 0.1;
+
+                this.stats.home.possession = Math.min(75, Math.max(25, Math.round(50 + delta)));
+                this.stats.away.possession = 100 - this.stats.home.possession;
+
+                const attKey = Math.random() * 100 < this.stats.home.possession ? 'home' : 'away';
+                const defKey = attKey === 'home' ? 'away' : 'home';
+
+                const attPower = this.calculateLinePower(this[attKey], 'ATT');
+                const defPower = this.calculateLinePower(this[defKey], 'DEF');
+
+                if (Math.random() < 0.08 + (attPower - defPower) * 0.003) {
+                    this.processShot(attKey, defKey);
+                }
+
+                [...this.home.squad, ...this.away.squad].forEach(p => { p.stamina = Math.max(30, p.stamina - 0.1); });
+                return true;
+            }
+
+            processShot(attKey, defKey) {
+                const st = this.stats[attKey];
+                st.shots++;
+                const xG = parseFloat((0.05 + Math.random() * 0.4).toFixed(2));
+                st.xG = parseFloat((st.xG + xG).toFixed(2));
+
+                if (Math.random() < 0.4) {
+                    st.shotsOnTarget++;
+                    if (Math.random() < xG * 1.2) {
+                        this.score[attKey]++;
+                        this.events.push({
+                            minute: this.time,
+                            text: `⚽ ГОЛ! (${attKey === 'home' ? this.home.name : this.away.name}) Опасный удар! (xG: ${xG})`
+                        });
+                    }
+                }
+            }
+        }
+
+        // === СОСТОЯНИЕ ИГРЫ ===
+        class CareerState {
+            constructor() {
+                this.clubName = 'ФК Грифон';
+                this.budget = 50000000;
+                this.weeklyWages = 0;
+                this.season = 1;
+                this.squad = [];
+                this.transferMarket = [];
+                this.tacticalFormation = '4-3-3';
+
+                this.initSquad();
+                this.generateTransfers();
+            }
+
+            initSquad() {
+                const squadTemplates = [
+                    { name: 'А. Максименко', pos: 'GK', ovr: 78, line: 'GK' },
+                    { name: 'Д. Хлусевич', pos: 'RB', ovr: 75, line: 'DEF' },
+                    { name: 'Г. Джикия', pos: 'CB', ovr: 79, line: 'DEF' },
+                    { name: 'С. Бабич', pos: 'CB', ovr: 77, line: 'DEF' },
+                    { name: 'Д. Пруцев', pos: 'LB', ovr: 74, line: 'DEF' },
+                    { name: 'Р. Зобнин', pos: 'CDM', ovr: 78, line: 'MID' },
+                    { name: 'Д. Баринов', pos: 'CM', ovr: 79, line: 'MID' },
+                    { name: 'Э. Сперцян', pos: 'CAM', ovr: 82, line: 'MID' },
+                    { name: 'К. Промес', pos: 'LW', ovr: 81, line: 'ATT' },
+                    { name: 'А. Соболев', pos: 'ST', ovr: 78, line: 'ATT' },
+                    { name: 'И. Обляков', pos: 'RW', ovr: 77, line: 'ATT' }
+                ];
+
+                this.squad = squadTemplates.map((t, i) => {
+                    const p = new Player(i + 1, t.name, 22 + (i % 5), t.pos, t.ovr);
+                    p.line = t.line;
+                    return p;
+                });
+                this.updateWages();
+            }
+
+            generateTransfers() {
+                const names = ['Мартинес', 'Силва', 'Дюбуа', 'Ковачич', 'Ван Дейк', 'Барелла', 'Сане', 'Диас'];
+                const positions = ['CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST', 'GK'];
+                this.transferMarket = [];
+
+                for (let i = 0; i < 10; i++) {
+                    const name = names[Math.floor(Math.random() * names.length)] + ' ' + String.fromCharCode(65 + i) + '.';
+                    const pos = positions[Math.floor(Math.random() * positions.length)];
+const ovr = 72 + Math.floor(Math.random() * 15);
+                    this.transferMarket.push(new Player(100 + i, name, 19 + Math.floor(Math.random() * 10), pos, ovr));
+                }
+            }
+
+            updateWages() {
+                this.weeklyWages = this.squad.reduce((sum, p) => sum + p.salary, 0);
+            }
+        }
+
+        // === UI УПРАВЛЕНИЕ ===
+        class UIController {
+            constructor(state) {
+                this.state = state;
+                this.initNav();
+                this.renderSidebar();
+                this.renderSquad();
+                this.drawPitch();
+                this.renderTransfers();
+                this.renderFinance();
+                this.initMatchSim();
+            }
+
+            initNav() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const target = btn.getAttribute('data-tab');
+                        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById(target).classList.add('active');
+                        if (target === 'squad') this.drawPitch();
+                    });
+                });
+
+                document.getElementById('tacticSelect').addEventListener('change', (e) => {
+                    this.state.tacticalFormation = e.target.value;
+                    this.drawPitch();
+                });
+            }
+
+            renderSidebar() {
+                document.getElementById('sidebarClubName').innerText = this.state.clubName;
+                document.getElementById('sidebarBudget').innerText = `$${(this.state.budget / 1000000).toFixed(1)}M`;
+            }
+
+            renderSquad() {
+                const container = document.getElementById('playersList');
+                container.innerHTML = '';
+                this.state.squad.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'player-card-mini';
+                    card.innerHTML = `
+                        <div><strong>${p.name}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">${p.position}</span></div>
+                        <div><span class="ovr-pill">${p.ovr}</span></div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            drawPitch() {
+                const canvas = document.getElementById('squadPitchCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#1a472a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.strokeStyle = '#ffffff33';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2, 15);
+                ctx.lineTo(canvas.width / 2, canvas.height - 15);
+                ctx.arc(canvas.width / 2, canvas.height / 2, 40, 0, Math.PI * 2);
+                ctx.stroke();
+
+                const coords = [
+                    { x: 50, y: 240 },
+                    { x: 140, y: 80 }, { x: 130, y: 180 }, { x: 130, y: 300 }, { x: 140, y: 400 },
+                    { x: 280, y: 130 }, { x: 260, y: 240 }, { x: 280, y: 350 },
+                    { x: 440, y: 90 }, { x: 480, y: 240 }, { x: 440, y: 390 }
+                ];
+
+                coords.forEach((spot, i) => {
+                    const p = this.state.squad[i] || { name: 'P', ovr: 70 };
+                    ctx.beginPath();
+                    ctx.arc(spot.x, spot.y, 16, 0, Math.PI * 2);
+                    ctx.fillStyle = '#00ff87';
+                    ctx.fill();
+                    ctx.fillStyle = '#000';
+ctx.font = 'bold 11px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(p.ovr, spot.x, spot.y);
+
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '10px Inter';
+                    ctx.fillText(p.name.split(' ')[1] || p.name, spot.x, spot.y + 24);
+                });
+            }
+
+            renderTransfers() {
+                const tbody = document.getElementById('transferMarketTable');
+                tbody.innerHTML = '';
+                this.state.transferMarket.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.name}</td>
+                        <td>${p.position}</td>
+                        <td><span class="ovr-pill">${p.ovr}</span></td>
+                        <td>${p.potential}</td>
+                        <td>$${(p.marketValue / 1000000).toFixed(1)}M</td>
+                        <td>$${(p.salary / 1000).toFixed(0)}k</td>
+                        <td><button style="padding:4px 8px; background:var(--accent-color); border:none; border-radius:4px; font-weight:bold; cursor:pointer;" class="buy-btn">Купить</button></td>
+                    `;
+                    tr.querySelector('.buy-btn').addEventListener('click', () => {
+                        if (this.state.budget >= p.marketValue) {
+                            this.state.budget -= p.marketValue;
+                            this.state.transferMarket = this.state.transferMarket.filter(x => x.id !== p.id);
+                            this.state.squad.push(p);
+                            this.state.updateWages();
+                            this.renderSidebar();
+                            this.renderSquad();
+                            this.drawPitch();
+                            this.renderTransfers();
+                            this.renderFinance();
+                            alert('Игрок куплен!');
+                        } else {
+                            alert('Недостаточно денег!');
+                        }
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+
+            renderFinance() {
+                document.getElementById('financeBalance').innerText = `$${(this.state.budget / 1000000).toFixed(2)}M`;
+                document.getElementById('financeWage').innerText = `$${(this.state.weeklyWages / 1000).toFixed(0)}k/нед`;
+            }
+
+            initMatchSim() {
+                const btn = document.getElementById('btnStartSim');
+                btn.addEventListener('click', () => {
+                    const awaySquad = Array.from({ length: 11 }, (_, i) => new Player(200 + i, `Зенит ${i + 1}`, 25, 'CM', 78));
+                    const engine = new MatchEngine({ name: this.state.clubName, squad: this.state.squad }, { name: 'Зенит', squad: awaySquad });
+                    
+                    btn.disabled = true;
+                    const log = document.getElementById('matchEventsLog');
+                    log.innerHTML = '';
+
+                    const timer = setInterval(() => {
+                        const running = engine.simulateTick();
+                        document.getElementById('liveScore').innerText = `${engine.score.home} : ${engine.score.away}`;
+                        document.getElementById('liveTime').innerText = `${String(engine.time).padStart(2, '0')}:00`;
+                        document.getElementById('homeXG').innerText = engine.stats.home.xG.toFixed(2);
+                        document.getElementById('awayXG').innerText = engine.stats.away.xG.toFixed(2);
+                        document.getElementById('homeShots').innerText = engine.stats.home.shots;
+                        document.getElementById('awayShots').innerText = engine.stats.away.shots;
+                        document.getElementById('homePoss').innerText = `${engine.stats.home.possession}%`;
+document.getElementById('awayPoss').innerText = `${engine.stats.away.possession}%`;
+
+                        if (engine.events.length > log.children.length) {
+                            const ev = engine.events[engine.events.length - 1];
+                            const div = document.createElement('div');
+                            div.className = 'event-item';
+                            div.innerText = `[${ev.minute}'] ${ev.text}`;
+                            log.prepend(div);
+                        }
+
+                        if (!running) {
+                            clearInterval(timer);
+                            btn.disabled = false;
+                            alert(`Матч окончен со счетом ${engine.score.home}:${engine.score.away}`);
+                        }
+                    }, 100);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new UIController(new CareerState());
+        });
+    </script>
 </body>
 </html>
